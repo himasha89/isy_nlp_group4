@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Data
+data/raw/*
+data/processed/*
+*.csv
+*.txt
+!requirements.txt
+
+# Model files
+*.pt
+*.pth
+*.h5
+
+# Notebooks
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.DS_Store
