@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Sentiment Analysis</h1>
+            <p class="text-gray-600">Enter your text below to analyze its sentiment</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="mb-6">
+                <textarea 
+                    id="textInput" 
+                    class="w-full h-32 px-4 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+                    placeholder="Enter your text here..."
+                ></textarea>
+            </div>
+
+            <div class="flex justify-center">
+                <button 
+                    id="analyzeBtn"
+                    class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+                >
+                    Analyze Sentiment
+                </button>
+            </div>
+
+            <div id="loadingSpinner" class="hidden mt-6 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+
+            <div id="result" class="hidden mt-6">
+                <div class="border rounded-lg p-4">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Results:</h3>
+                        <p id="sentimentResult" class="text-lg mt-2"></p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-700">Confidence Score:</h4>
+                        <div class="mt-2 bg-gray-200 rounded-full h-4">
+                            <div id="confidenceBar" 
+                                 class="h-full rounded-full transition-all duration-500 ease-out"
+                            ></div>
+                        </div>
+                        <p id="confidenceScore" class="text-sm text-gray-600 mt-1"></p>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-700">Processed Text:</h4>
+                        <p id="processedText" class="text-sm text-gray-600 mt-1 italic"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="error" class="hidden mt-6">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                    <span id="errorMessage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(data);
+                } else {
+                    showError(data.error || 'An error occurred');
+                }
+            } catch (error) {
+                showError('Failed to analyze text');
+            } finally {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        });
+
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            const sentimentResult = document.getElementById('sentimentResult');
+            const confidenceBar = document.getElementById('confidenceBar');
+            const confidenceScore = document.getElementById('confidenceScore');
+            const processedText = document.getElementById('processedText');
+
+            // Update sentiment result
+            sentimentResult.textContent = `Sentiment: ${data.sentiment}`;
+            sentimentResult.className = `text-lg mt-2 font-bold ${data.sentiment === 'Positive' ? 'text-green-600' : 'text-red-600'}`;
+
+            // Update confidence bar
+            const confidence = (data.confidence * 100).toFixed(1);
+            confidenceBar.style.width = `${confidence}%`;
+            confidenceBar.className = `h-full rounded-full transition-all duration-500 ease-out ${
+                data.sentiment === 'Positive' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            confidenceScore.textContent = `Confidence: ${confidence}%`;
+
+            // Update processed text
+            processedText.textContent = data.processed_text;
+
+            resultDiv.classList.remove('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
