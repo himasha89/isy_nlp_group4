@@ -5,11 +5,11 @@ ISY503 Assessment 3 - Group 4
 A comprehensive sentiment analysis system that analyzes Amazon product reviews using Natural Language Processing (NLP). The system features both web and console interfaces for real-time sentiment analysis, providing sentiment classification with confidence scores.
 
 ## Team Members
-- Himasha - Core ML Implementation & Leadership
-- Carlos - Technical Optimization & Ethics
-- Aashish - Data Processing Pipeline
-- Sohail - Interface Development
-- Simon - Documentation & Support
+- S M Himasha Tharinda Samaraweera
+- Carlos Jairo Carvajal Trujillo
+- Aashish Raj Singh
+- Sohail Mohammed
+- Simon Kimani Kagira
 
 ## Features
 - Real-time sentiment analysis
